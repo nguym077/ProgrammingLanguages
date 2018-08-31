@@ -1,2 +1,2 @@
-# ProgrammingLanguages
+# Programming Languages
 Prolog, F#, Closure
