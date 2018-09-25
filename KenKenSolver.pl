@@ -17,25 +17,56 @@ product_list([], 1).
 product_list([H|T], Ans):- product_list(T, M), Ans #= H * M.
 
 % cell_values(Cells, S, Values) translates a list of coordinates into a
-% list of vlues at those coordinates.
+% list of values at those coordinates.
 % Given S whose first row contains the values 2, 1, then
 % cell_values([[0,0], [0,1]], S, Values) would give Values = [2,1]
-cell_values([], S, []).
-cell_values([H|T], S, Values):-
+cell_values([], _S, []).
+cell_values([[X,Y]|T], S, Values):-
+    nth0(X, S, Row),  			% uses coordinates to grab S values (V2)
+    nth0(Y, Row, V),
+    append([V], V2, Values),  	% appends value to solution list (could also use Values = [V|V2])
+    cell_values(T, S, V2).	% repeat until Cells is empty list
+
+% check_constraint (id): true iff the exact value of the single entry in Cells = V
+check_constraint(cage(id, V, Cells), S):-
+    cell_values([Cells], S, Values),
+    V =:= Values.
+
+% check_constraint (add): true iff the entries in Cells sum to V
+check_constraint(cage(add, V, Cells), S):-
+    cell_values(Cells, S, Values),
+    sum_list(Values, Sum),
+    V =:= Sum.
+
+% check_constraint (sub): true iff the two entries in Cells equal to V
+check_constraint(cage(sub, V, Cells), S):-
+    cell_values(Cells, S, [X, Y|_]),
+    (V =:= X - Y; V =:= Y - X).
+
+% check_constraint (div): true iff the quotient of the two entries in Cells equal to V
+check_constraint(cage(div, V, Cells), S):-
+    cell_values(Cells, S, [X, Y|_]),
+    (V =:= X // Y; V =:= Y // X).
+
+% check_constraint (mult): true iff the entries in Cells have a product equal to V
+check_constraint(cage(mult, V, Cells), S):-
+    cell_values(Cells, S, Values),
+    product_list(Values, P),
+    V =:= P.
 
 % creates irregular "cages" in KenKen puzzle
-cage(mult, 120, [[0,0], [0,1], [1,0], [2,0]]).
-cage(div, 2, [[1,1], [2,1]]).
-cage(mult, 15, [[3,0], [3,1]]).
-cage(sub, 3, [[4,0], [5,0]]).
-cage(sub, 1, [[4,1], [4,2]]).
-cage(sub, 5, [[5,1], [5,2]]).
-cage(mult, 144, [[0,2], [1,2], [1,3], [1,4]]).
-cage(sub, 3, [[2,2], [3,2]]).
-cage(id, 4, [0,3]).
-cage(sub, 4, [[2,3], [2,4]]).
-cage(add, 16, [[3,3], [3,4], [4,3], [5,3]]).
-cage(add, 6, [[0,4], [0,5]]).
-cage(div, 3, [[1,5], [2,5]]).
-cage(mult, 48, [[3,5], [4,5], [4,4]]).
-cage(mult, 6, [[5,4], [5,5]]).
+% cage(mult, 120, [[0,0], [0,1], [1,0], [2,0]]).
+% cage(div, 2, [[1,1], [2,1]]).
+% cage(mult, 15, [[3,0], [3,1]]).
+% cage(sub, 3, [[4,0], [5,0]]).
+% cage(sub, 1, [[4,1], [4,2]]).
+% cage(sub, 5, [[5,1], [5,2]]).
+% cage(mult, 144, [[0,2], [1,2], [1,3], [1,4]]).
+% cage(sub, 3, [[2,2], [3,2]]).
+% cage(id, 4, [0,3]).
+% cage(sub, 4, [[2,3], [2,4]]).
+% cage(add, 16, [[3,3], [3,4], [4,3], [5,3]]).
+% cage(add, 6, [[0,4], [0,5]]).
+% cage(div, 3, [[1,5], [2,5]]).
+% cage(mult, 48, [[3,5], [4,5], [4,4]]).
+% cage(mult, 6, [[5,4], [5,5]]).

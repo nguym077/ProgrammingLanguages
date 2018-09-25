@@ -17,11 +17,23 @@ product_list([], 1).
 product_list([H|T], Ans):- product_list(T, M), Ans #= H * M.
 
 % cell_values(Cells, S, Values) translates a list of coordinates into a
-% list of vlues at those coordinates.
+% list of values at those coordinates.
 % Given S whose first row contains the values 2, 1, then
 % cell_values([[0,0], [0,1]], S, Values) would give Values = [2,1]
-cell_values([], S, []).
-cell_values(
+appendElement(X, [], [X]).
+
+cell_values([], _S, []).
+cell_values([H|T], S, Values):-
+    nth0(0, H, R),    % grabs values from the coordinate: [R, C]
+    nth0(1, H, C),
+    nth0(R, S, Row),  % uses coordinates to grab S values (V2)
+    nth0(C, Row, V),
+    write(V ),
+    %appendElement(V2, [], V2List),
+    %append(V2List, Values).
+    %append(V, Values).  % appends value to solution list
+    cell_values(T, S, Values).   % repeat until Cells is empty list
+
 
 % creates irregular "cages" in KenKen puzzle
 cage(mult, 120, [[0,0], [0,1], [1,0], [2,0]]).
