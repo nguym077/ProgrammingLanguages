@@ -29,8 +29,8 @@ cell_values([[X,Y]|T], S, Values):-
 
 % check_constraint (id): true iff the exact value of the single entry in Cells = V
 check_constraint(cage(id, V, Cells), S):-
-    cell_values([Cells], S, Values),
-    V =:= Values.
+    cell_values([Cells], S, [V]).
+    %V =:= Values.
 
 % check_constraint (add): true iff the entries in Cells sum to V
 check_constraint(cage(add, V, Cells), S):-
@@ -85,7 +85,10 @@ solve(Cages, S):-
 
     maplist(label, S).
 
-%Cages = [cage(mult, 120, [[0,0], [0,1], [1,0], [2,0]]),
+% ###################################
+% Query used to solve KenKen puzzle:
+% ###################################
+% Cages = [cage(mult, 120, [[0,0], [0,1], [1,0], [2,0]]),
 %         cage(div, 2, [[1,1], [2,1]]),
 %         cage(mult, 15, [[3,0], [3,1]]),
 %         cage(sub, 3, [[4,0], [5,0]]),
@@ -100,4 +103,14 @@ solve(Cages, S):-
 %         cage(div, 3, [[1,5], [2,5]]),
 %         cage(mult, 48, [[3,5], [4,5], [4,4]]),
 %         cage(mult, 6, [[5,4], [5,5]])],
-%solve(Cages, S).
+% solve(Cages, S).
+%
+%##################################
+% Results:
+% #################################
+% S = [[6, 2, 3, 4, 1, 5],
+% 		[5, 3, 2, 6, 4, 1],
+% 		[2, 6, 4, 1, 5, 3],
+% 		[3, 5, 1, 2, 6, 4],
+% 		[4, 1, 5, 3, 2, 6],
+% 		[1, 4, 6, 5, 3, 2]]
