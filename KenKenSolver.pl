@@ -41,12 +41,13 @@ check_constraint(cage(add, V, Cells), S):-
 % check_constraint (sub): true iff the two entries in Cells equal to V
 check_constraint(cage(sub, V, Cells), S):-
     cell_values(Cells, S, [X, Y]),
-    (V #= X - Y) ; (V #= Y - X).		% ';' represents logical OR
+    (V #= X - Y ; V #= Y - X).		% ';' represents logical OR
+									% *** order of operations
 
 % check_constraint (div): true iff the quotient of the two entries in Cells equal to V
 check_constraint(cage(div, V, Cells), S):-
     cell_values(Cells, S, [X, Y]),
-    (V #= X // Y) ; (V #= Y // X).
+    (V #= X // Y ; V #= Y // X).
 
 % check_constraint (mult): true iff the entries in Cells have a product equal to V
 check_constraint(cage(mult, V, Cells), S):-
@@ -76,7 +77,7 @@ solve(Cages, S):-
     Values ins 1..6,
     maplist(all_different, S),
 
-    % forces row to have distinct values between 1 and 6
+    % forces columns to have distinct values between 1 and 6
     transpose(S, Cols),
     maplist(all_different, Cols),
 
@@ -112,5 +113,5 @@ solve(Cages, S):-
 % 		[5, 3, 2, 6, 4, 1],
 % 		[2, 6, 4, 1, 5, 3],
 % 		[3, 5, 1, 2, 6, 4],
-% 		[4, 1, 5, 3, 2, 6],
-% 		[1, 4, 6, 5, 3, 2]]
+% 		[1, 4, 5, 3, 2, 6],
+% 		[4, 1, 6, 5, 3, 2]]
