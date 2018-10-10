@@ -62,10 +62,7 @@ void* my_alloc(int size) {
 
 		// split
 		if (leftOver >= (OVERHEAD_SIZE + MINIMUM_SIZE)) {
-			// block is at head
-			if (current == free_head) {
-				printf("split, block at head.\n");
-
+			if (current == free_head) {		// block is at head
 				// treats current as 1 byte and updates pointer accordingly
 				struct Block* nextBlock = (struct Block*)((char*)current + OVERHEAD_SIZE + size);
 				nextBlock->block_size = leftOver - OVERHEAD_SIZE;
@@ -76,8 +73,6 @@ void* my_alloc(int size) {
 				current->block_size = size;
 				current->next_block = NULL;
 			} else { // block is not at head
-				printf("split, block not at head.\n");
-
 				// treats current as 1 byte and updates pointer accordingly
 				struct Block* nextBlock = (struct Block*)((char*)current + OVERHEAD_SIZE + size);
 				nextBlock->block_size = leftOver - OVERHEAD_SIZE;
@@ -93,10 +88,7 @@ void* my_alloc(int size) {
 			}
 		} else {
 			// don't split
-			if (current == free_head) {
-				// block is at head
-				printf("dont split, block at head.\n");
-
+			if (current == free_head) {		// block is at head
 				// updates freelist to next available block
 				free_head = current->next_block;
 
@@ -104,8 +96,6 @@ void* my_alloc(int size) {
 				current->block_size = size;
 				current->next_block = NULL;
 			} else { // block is not at head
-				printf("dont split, block not at head.\n");
-
 				previous->next_block = current->next_block;
 
 				// allocates
@@ -133,11 +123,79 @@ void my_free(void *data) {
 
 int main() {
 	my_initialize_heap(1000);
-	void* m = my_alloc(4);
-	void* s = my_alloc(4);
 
-	printf("m: %p\n", m);
-	printf("s: %p", s);
+	void* a;
+	void* b;
+	void* c;
+	void* d;
+	void* e;
+	
+	int testNumber = 5;
+	switch (testNumber) {
+		case 1:		// test case #1
+			printf("Test Case #1\n");
+			a = my_alloc(sizeof(int));
+			printf("Address of 'a': %p\n", a);
+
+			my_free(a);
+
+			b = my_alloc(sizeof(int));
+			printf("Address of 'b': %p", b);
+			// address of a and b should be the same
+			break;
+		case 2:		// test case #2
+			printf("Test Case #2\n");
+			a = my_alloc(sizeof(int));
+			b = my_alloc(sizeof(int));
+
+			printf("Address of 'a': %p\n", a);
+			printf("Address of 'b': %p", b);
+			break;
+		case 3:		// test case #3
+			printf("Test Case #3\n");
+			a = my_alloc(sizeof(int));
+			b = my_alloc(sizeof(int));
+			c = my_alloc(sizeof(int));
+
+			printf("Address of 'a': %p\n", a);
+			printf("Address of 'b': %p\n", b);
+			printf("Address of 'c': %p\n", c);
+
+			my_free(b);
+
+			d = my_alloc(sizeof(2 * sizeof(double)));
+			printf("\nAddress of 'd': %p\n", d);
+
+			e = my_alloc(sizeof(int));
+			printf("\nAddress of 'a': %p\n", a);
+			printf("Address of 'b': %p\n", b);
+			printf("Address of 'c': %p\n", c);
+			printf("Address of 'd': %p\n", d);
+			printf("Address of 'e': %p", e);
+			break;
+		case 4:		// test case #4
+			printf("Test Case #4\n");
+			a = my_alloc(sizeof(char));
+			b = my_alloc(sizeof(int));
+
+			printf("Address of 'a': %p\n", a);
+			printf("Address of 'b': %p", b);
+			break;
+		case 5:		// test case #5
+			printf("Test Case #5\n");
+			a = my_alloc(80 * sizeof(int));
+			b = my_alloc(sizeof(int));
+
+			printf("Address of 'a': %p\n", a);
+			printf("Address of 'b': %p", b);
+
+			my_free(a);
+
+			printf("\nAddress of 'b': %p", b);
+			break;
+		default:
+			printf("\n");
+	}
 
 	printf("\n");		// formatting
 	return 0;
