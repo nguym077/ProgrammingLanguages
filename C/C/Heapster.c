@@ -96,8 +96,21 @@ void* my_alloc(int size) {
 			if (current == free_head) {
 				// block is at head
 				printf("dont split, block at head.\n");
+
+				// updates freelist to next available block
+				free_head = current->next_block;
+
+				// allocates
+				current->block_size = size;
+				current->next_block = NULL;
 			} else { // block is not at head
 				printf("dont split, block not at head.\n");
+
+				previous->next_block = current->next_block;
+
+				// allocates
+				current->block_size = size;
+				current->next_block = NULL;
 			}
 		}
 
