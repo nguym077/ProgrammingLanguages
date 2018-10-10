@@ -121,6 +121,16 @@ void* my_alloc(int size) {
 	}
 }
 
+// deallocates a value that was allocated on the heap
+void my_free(void *data) {
+	// points current to front of block being deallocated
+	struct Block* current = (struct Block*)((char*)data - OVERHEAD_SIZE);
+	
+	// links current to free list
+	current->next_block = free_head;
+	free_head = current;
+}
+
 int main() {
 	my_initialize_heap(1000);
 	void* m = my_alloc(4);
