@@ -19,10 +19,15 @@ const int MINIMUM_SIZE = sizeof(void*);				// 4
 // always points to the first free block in the free list
 struct Block *free_head;
 
+// points to block right before current when scanning free_list
+struct Block *previous;
+
 void my_initialize_heap(int size) {
 	free_head = (struct Block*) malloc(size);
 	free_head->block_size = size - OVERHEAD_SIZE;
 	free_head->next_block = NULL;
+
+	previous = NULL;
 }
 
 // fills allocation request of 'size' bytes and
@@ -46,8 +51,8 @@ void* my_alloc(int size) {
 			foundBlock = 1;
 			break;
 		} else {
-			// increments iterator
-			current = current->next_block;
+			previous = current;				// keeps track of previous block in free_list
+			current = current->next_block;	// increments iterator
 		}
 	}
 
@@ -56,14 +61,35 @@ void* my_alloc(int size) {
 		int leftOver = current->block_size - size;
 
 		// split
-		if (leftOver > (OVERHEAD_SIZE + MINIMUM_SIZE)) {
+		if (leftOver >= (OVERHEAD_SIZE + MINIMUM_SIZE)) {
 			// block is at head
 			if (current == free_head) {
 				printf("split, block at head.\n");
-				struct Block* nextBlock = current + OVERHEAD_SIZE + size;
 
+				// treats current as 1 byte and updates pointer accordingly
+				struct Block* nextBlock = (struct Block*)((char*)current + OVERHEAD_SIZE + size);
+				nextBlock->block_size = leftOver - OVERHEAD_SIZE;
+				nextBlock->next_block = current->next_block;
+				free_head = nextBlock;
+
+				// allocates
+				current->block_size = size;
+				current->next_block = NULL;
 			} else { // block is not at head
 				printf("split, block not at head.\n");
+
+				// treats current as 1 byte and updates pointer accordingly
+				struct Block* nextBlock = (struct Block*)((char*)current + OVERHEAD_SIZE + size);
+				nextBlock->block_size = leftOver - OVERHEAD_SIZE;
+				nextBlock->next_block = current->next_block;
+
+				// allocates
+				current->block_size = size;
+				current->next_block = NULL;
+
+				// points the previous block's (in free_list)
+				// next_block to the node that was split off
+				previous->next_block = nextBlock;
 			}
 		} else {
 			// don't split
@@ -74,6 +100,8 @@ void* my_alloc(int size) {
 				printf("dont split, block not at head.\n");
 			}
 		}
+
+		return (void*) ((char*)current + OVERHEAD_SIZE);	// returns 'data' portion of block
 	} else {
 		// did not find block large enough for allocation request
 		return 0;
@@ -82,7 +110,11 @@ void* my_alloc(int size) {
 
 int main() {
 	my_initialize_heap(1000);
-	//my_alloc(4);
+	void* m = my_alloc(4);
+	void* s = my_alloc(4);
+
+	printf("m: %p\n", m);
+	printf("s: %p", s);
 
 	printf("\n");		// formatting
 	return 0;
