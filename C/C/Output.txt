@@ -1,0 +1,63 @@
+Marian Nguyen
+October 11, 2018
+CECS 424
+Lab 2: Original Heapster
+(Output From Testing Main)
+
+----- Test Case #1 -----
+... allocated 'a' (size: 4)
+
+Address of 'a': 00F2E1E0
+
+... deallocated 'a'
+
+... allocated 'b' (size: 4)
+
+Address of 'b': 00F2E1E0
+
+
+----- Test Case #2 -----
+... allocated 'a' (size: 4)
+... allocated 'b' (size: 4)
+
+Address of 'a': 0047E218
+Address of 'b': 0047E224
+
+
+----- Test Case #3 -----
+... allocated 'a' (size: 4)
+... allocated 'b' (size: 4)
+... allocated 'c' (size: 4)
+
+Address of 'a': 015AE218
+Address of 'b': 015AE224
+Address of 'c': 015AE230
+
+... deallocated 'b'
+... allocated 'd' (size: 16)
+
+Address of 'd': 015AE23C
+
+... allocated 'e' (size: 4)
+
+Address of 'e': 015AE224
+
+
+----- Test Case #4 -----
+... allocated 'a' (size: 4--rounded to next multiple)
+... allocated 'b' (size: 4--rounded to next multiple)
+
+Address of 'a': 0053FE18
+Address of 'b': 0053FE24
+
+
+----- Test Case #4 -----
+... allocated 'a' (size: 120)
+... allocated 'b' (size: 4)
+
+Address of 'a': 011E1EB8
+Address of 'b': 011E2000
+
+... deallocated 'a'
+
+Address of 'b': 011E2000
