@@ -45,10 +45,10 @@ void* my_alloc(int size) {
 	// walks free list (starting at free_head), looking
 	// for a block with large enough size to fit request
 	struct Block* current = free_head;
-	bool foundBlock = 0;		// '0' means false (NULL), '1' means true
+	bool foundBlock = false;		// '0' means false (NULL), '1' means true
 	while (current != NULL) {
 		if (current->block_size >= size) {
-			foundBlock = 1;
+			foundBlock = true;
 			break;
 		} else {
 			previous = current;				// keeps track of previous block in free_list
@@ -63,6 +63,7 @@ void* my_alloc(int size) {
 		// split
 		if (leftOver >= (OVERHEAD_SIZE + MINIMUM_SIZE)) {
 			if (current == free_head) {		// block is at head
+				printf("split. at head.\n");
 				// treats current as 1 byte and updates pointer accordingly
 				struct Block* nextBlock = (struct Block*)((char*)current + OVERHEAD_SIZE + size);
 				nextBlock->block_size = leftOver - OVERHEAD_SIZE;
@@ -73,22 +74,24 @@ void* my_alloc(int size) {
 				current->block_size = size;
 				current->next_block = NULL;
 			} else { // block is not at head
+				printf("split. NOT at head.\n");
 				// treats current as 1 byte and updates pointer accordingly
 				struct Block* nextBlock = (struct Block*)((char*)current + OVERHEAD_SIZE + size);
 				nextBlock->block_size = leftOver - OVERHEAD_SIZE;
 				nextBlock->next_block = current->next_block;
 
-				// allocates
-				current->block_size = size;
-				current->next_block = NULL;
-
 				// points the previous block's (in free_list)
 				// next_block to the node that was split off
 				previous->next_block = nextBlock;
+
+				// allocates
+				current->block_size = size;
+				current->next_block = NULL;
 			}
 		} else {
 			// don't split
 			if (current == free_head) {		// block is at head
+				printf("DONT split. at head.\n");
 				// updates freelist to next available block
 				free_head = current->next_block;
 
@@ -96,6 +99,7 @@ void* my_alloc(int size) {
 				current->block_size = size;
 				current->next_block = NULL;
 			} else { // block is not at head
+				printf("DONT split. NOT at head.\n");
 				previous->next_block = current->next_block;
 
 				// allocates
@@ -130,7 +134,7 @@ int main() {
 	void* d;
 	void* e;
 	
-	int testNumber = 5;
+	int testNumber = 3;
 	switch (testNumber) {
 		case 1:		// test case #1
 			printf("Test Case #1\n");
@@ -152,25 +156,28 @@ int main() {
 			printf("Address of 'b': %p", b);
 			break;
 		case 3:		// test case #3
-			printf("Test Case #3\n");
+			printf("Test Case #3\n\n");
+
 			a = my_alloc(sizeof(int));
+			printf("allocated 'a'.\n\n");
 			b = my_alloc(sizeof(int));
+			printf("allocated 'b'.\n\n");
 			c = my_alloc(sizeof(int));
+			printf("allocated 'c'.\n\n");
 
 			printf("Address of 'a': %p\n", a);
 			printf("Address of 'b': %p\n", b);
-			printf("Address of 'c': %p\n", c);
+			printf("Address of 'c': %p\n\n", c);
 
 			my_free(b);
+			printf("deallocated 'b'.\n\n");
 
-			d = my_alloc(sizeof(2 * sizeof(double)));
-			printf("\nAddress of 'd': %p\n", d);
+			d = my_alloc(2 * sizeof(double));
+			printf("allocated 'd'.\n");
+			printf("\Address of 'd': %p\n\n", d);
 
 			e = my_alloc(sizeof(int));
-			printf("\nAddress of 'a': %p\n", a);
-			printf("Address of 'b': %p\n", b);
-			printf("Address of 'c': %p\n", c);
-			printf("Address of 'd': %p\n", d);
+			printf("allocated 'f'.\n");
 			printf("Address of 'e': %p", e);
 			break;
 		case 4:		// test case #4
