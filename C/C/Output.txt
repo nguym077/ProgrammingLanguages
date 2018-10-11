@@ -51,7 +51,7 @@ Address of 'a': 0053FE18
 Address of 'b': 0053FE24
 
 
------ Test Case #4 -----
+----- Test Case #5 -----
 ... allocated 'a' (size: 120)
 ... allocated 'b' (size: 4)
 
