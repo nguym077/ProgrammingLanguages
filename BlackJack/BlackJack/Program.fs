@@ -24,43 +24,43 @@ type HandOwner =
 
 // Returns a string describing a card.
 let cardToString card =
-    // TODO: replace the following line with logic that converts the card's kind to a string.
-    // Reminder: a 1 means "Ace", 11 means "Jack", 12 means "Queen", 13 means "King".
-    // A "match" statement will be necessary. (The next function below is a hint.)
-    let kind = match card.kind with
-                | 1   -> "Ace"
-                | 11  -> "Jack"
-                | 12  -> "Queen"
-                | 13  -> "King"
-                | i   -> string i
+  let kind = match card.kind with
+              | 1   -> "Ace"
+              | 11  -> "Jack"
+              | 12  -> "Queen"
+              | 13  -> "King"
+              | i   -> string i
 
-    // "%A" can print any kind of object, and automatically converts a union (like CardSuit)
-    // into a simple string.
-    sprintf "%s of %A" kind card.suit
+  // "%A" can print any kind of object, and automatically
+  // converts a union (like CardSuit) into a simple string.
+  sprintf "%s of %A" kind card.suit
 
-// Returns the "value" of a card in a poker hand, where all three "face" cards are worth 10
-// and an Ace has a value of 11.
+// Returns the "value" of a card in a poker hand, where all three
+// "face" cards are worth 10 and an Ace has a value of 11.
 let cardValue card =
-    let value = match card.kind with
-                | 1 -> 11
-                | 11 | 12 | 13 -> 10  // This matches 11, 12, or 13.
-                | n -> n
-    value
+  let value = match card.kind with
+              | 1 -> 11
+              | 11 | 12 | 13 -> 10  // This matches 11, 12, or 13.
+              | n -> n
+  value
 
 
 // Calculates the total point value of the given hand (Card list). 
 // Find the sum of the card values of each card in the hand. If that sum
 // exceeds 21, and the hand has aces, then some of those aces turn from 
 // a value of 11 to a value of 1, and a new total is computed.
-// TODO: fill in the marked parts of this function.
 let handTotal hand =
-    // TODO: modify the next line to calculate the sum of the card values of each
-    // card in the list. Hint: List.map and List.sum. (Or, if you're slick, List.sumBy)
-    let sum = 0
+    // Sum of the card values of each card in the list.
+    let sum =
+      hand
+      |> List.map cardValue
+      |> List.sum
 
-    // TODO: modify the next line to count the number of aces in the hand.
-    // Hint: List.filter and List.length. 
-    let numAces = 0
+    // Number of aces in the hand.
+    let numAces =
+      hand
+      |> List.filter (fun card -> card.kind = 1)
+      |> List.length
 
     // Adjust the sum if it exceeds 21 and there are aces.
     if sum <= 21 then
@@ -72,6 +72,9 @@ let handTotal hand =
         // Remove 10 points per ace, depending on how many are needed.
         sum - (10 * (min numAces maxAces))
 
+
+//let testHand = [{suit = Hearts; kind = 1}; {suit = Hearts; kind = 1} ; {suit = Hearts; kind = 1}]
+// testHand |> handTotal |> printfn "%A"
 
 // FUNCTIONS THAT CREATE OR UPDATE GAME STATES
 
@@ -130,12 +133,22 @@ let newGame () =
 // card from the deck and add it to the given person's hand. Return the new game state.
 let hit (handOwner : HandOwner) (gameState : GameState) = // these type annotations are for your benefit, not the compiler
 
-    // TODO: take the top (first) card from the gameState's deck and cons it onto the hand
-    // for whichever person is identified by "handOwner". 
-    // Return the new game state, *including* new the deck with the top card removed.
-    
-    // TODO: this is just so the code compiles; fix it.
-    gameState
+  // Take the top (first) card from the gameState's deck and cons it
+  // onto the hand for whichever person is identified by "handOwner".
+  let newHand =
+    match handOwner with
+    | Player -> gameState.deck.Head :: gameState.playerHand
+    | Dealer -> gameState.deck.Head :: gameState.dealerHand
+
+  // Return the new game state, *including* new the deck with the top card removed.
+  if handOwner = Player then
+    {playerHand = newHand;
+     dealerHand = gameState.dealerHand;
+     deck = List.skip 1 gameState.deck}
+  else
+    {playerHand = gameState.playerHand;
+     dealerHand = newHand;
+     deck = List.skip 1 gameState.deck}
 
 // Take the dealer's turn by repeatedly taking a single action, hit or stay, until 
 // the dealer busts or stays.
