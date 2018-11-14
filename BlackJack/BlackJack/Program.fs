@@ -8,7 +8,8 @@ type CardSuit =
 // Kinds: 1 = Ace, 2 = Two, ..., 11 = Jack, 12 = Queen, 13 = King.
 type Card = {suit : CardSuit; kind : int}
 
-// The state of a single game of blackjack. Tracks the current deck, the player's hand, and the dealer's hand.
+// The state of a single game of blackjack.
+// Tracks the current deck, the player's hand, and the dealer's hand.
 type GameState = {deck : Card list; playerHand : Card list; dealerHand : Card list}
 
 // A log of results from many games of blackjack.
@@ -72,9 +73,6 @@ let handTotal hand =
         // Remove 10 points per ace, depending on how many are needed.
         sum - (10 * (min numAces maxAces))
 
-
-//let testHand = [{suit = Hearts; kind = 1}; {suit = Hearts; kind = 1} ; {suit = Hearts; kind = 1}]
-// testHand |> handTotal |> printfn "%A"
 
 // FUNCTIONS THAT CREATE OR UPDATE GAME STATES
 
@@ -156,11 +154,11 @@ let rec dealerTurn gameState =
     let dealer = gameState.dealerHand
     let score = handTotal dealer
 
-    // TODO: the following line prints the cards in the dealer's hand, but with ugly output
-    // because F# doesn't know how to format a Card variable for output. Transform each card
-    // in the dealer's hand into a string using cardToString and use those for output.
-    // Hint: List.map
-    printfn "Dealer's hand: %A; %d points" dealer score
+    // Prints the cards in the dealer's hand
+    dealer
+    |> List.map cardToString
+    |> printfn "\nDealer's hand: %A"
+    printfn "%d points" score
     
     // Dealer rules: must hit if score < 17.
     if score > 21 then
@@ -181,44 +179,135 @@ let rec dealerTurn gameState =
         printfn "Dealer must stay"
         gameState
 
+
 // Take the player's turn by repeatedly taking a single action until they bust or stay.
 let rec playerTurn (playerStrategy : GameState->bool) (gameState : GameState) =
     // TODO: code this method using dealerTurn as a guide. Follow the same standard
     // of printing output. This function must return the new game state after the player's
     // turn has finished, like dealerTurn.
+    let player = gameState.playerHand
+    let score = handTotal player
 
-    // Unlike the dealer, the player gets to make choices about whether they will hit or stay.
-    // The "elif score < 17" code from dealerTurn is inappropriate; in its place, we will
-    // allow a "strategy" to decide whether to hit. A "strategy" is a function that accepts
-    // the current game state and returns true if the player should hit, and false otherwise.
-    // playerTurn must call that function (the parameter playerStrategy) to decide whether
-    // to hit or stay.
+    // Prints the cards in the player's hand
+    player
+    |> List.map cardToString
+    |> printfn "\nPlayer's hand: %A"
+    printfn "%d points" score
+
+    // A "strategy" is a function that accepts the current game state
+    // and returns true if the player should hit, and false otherwise.
+    if score > 21 then
+        printfn "Player busts!"
+        // The game state is unchanged because we did not hit. 
+        // The dealer does not get to take another action.
+        gameState
+    else
+       if playerStrategy gameState then
+          gameState
+          |> hit Player
+          |> playerTurn playerStrategy
+        else 
+          gameState
+            
+
+// PLAYER STRATEGIES (5)
+// allows user to make decision by typing 'y' or 'n' into console
+let interactivePlayerStrategy gameState =
+    printfn "Hit? y/n"
+    let answer = System.Console.ReadLine()
+    // Return true if they entered "y", false otherwise.
+    if answer = "y" then
+      true
+    else
+      false
 
 
-    // The next line is just so the code compiles. Remove it when you code the function.
-    gameState
+// player never hits (always returns false)
+let inactivePlayerStrategy gameState =
+  false
 
-// Plays one game with the given player strategy. Returns a GameLog recording the winner of the game.
+
+// only hits if their hand total is less than 15
+let cautiousPlayerStrategy gameState =
+  let score = handTotal gameState.playerHand
+
+  if score < 15 then
+    printfn "Player hits!"
+    true
+  else
+    printfn "Player stays.."
+    false
+
+
+// hits unless their total is 21 or higher
+let greedyPlayerStrategy gameState =
+  let score = handTotal gameState.playerHand
+
+  if score < 21 then
+    printfn "Player hits!"
+    true
+  else
+    false
+    
+
+// player flips a coin each time: heads = hit
+let coinFlipPlayerStrategy gameState =
+  let randomNumber = rand.Next(2)
+
+  // heads
+  if randomNumber = 0 then
+    printfn "Player hits!"
+    true
+  else  // tails
+    printfn "Player stays!"
+    false
+
+
+// Plays one game with the given player strategy.
+// Returns a GameLog recording the winner of the game.
 let oneGame playerStrategy gameState =
     // TODO: print the first card in the dealer's hand to the screen, because the Player can see
-    // one card from the dealer's hand in order to make their decisions.
-    printfn "Dealer is showing: %A" 0 // fix this line
+    let dealer = gameState.dealerHand
+    let player = gameState.playerHand
+
+    dealer.Head
+    |> cardToString
+    |> printfn "\nDealer is showing: %A"
 
     // TODO: play the game! First the player gets their turn. The dealer then takes their turn,
     // using the state of the game after the player's turn finished.
+    let currentState = playerTurn playerStrategy gameState
+    let finalState = dealerTurn currentState
 
+    let playerScore = handTotal finalState.playerHand 
+    let dealerScore = handTotal finalState.dealerHand
 
-
+    
     // TODO: determine the winner! Get the hand scores for the dealer and the player.
     // The player wins if they did not bust (score <= 21) AND EITHER:
     //                                                        - the dealer busts; or
     //                                                        - player's score > dealer's score
     // If neither side busts and they have the same score, the result is a "draw".
     // Return a GameLog object with a value of 1 for the correct winner.
+    let mutable playerWins = 0
+    let mutable dealerWins = 0
+    let mutable draws = 0
+
+    if playerScore <= 21 then
+      if dealerScore > 21 || playerScore > dealerScore then
+        playerWins <- 1
+      elif playerScore = dealerScore then
+        draws <- 1
+      elif dealerScore = 21 then
+        dealerWins <- 1
+      elif dealerScore > playerScore then
+        dealerWins <- 1
+    elif playerScore > 21 then
+      dealerWins <- 1
 
     // TODO: this is a "blank" GameLog. Return something more appropriate for each of the outcomes
     // described above.
-    {playerWins = 0; dealerWins = 0; draws = 0}
+    {playerWins = playerWins; dealerWins = dealerWins; draws = draws}
 
 // Recursively plays n games using the given playerStrategy.
 let manyGames n playerStrategy =
@@ -226,25 +315,31 @@ let manyGames n playerStrategy =
     let rec manyGamesTail n playerStrategy logSoFar =
         // TODO: construct a new game using newGame ().
         // Then play that game using oneGame.
-        // Take the result of that and combine it with the logSoFar, by summing the playerWins, dealerWins, and draws
-        // from the result and from the logSoFar.
+        let startGame = newGame ()
+        let gameLog = oneGame cautiousPlayerStrategy startGame
+        
+        let currentLog = {playerWins = logSoFar.playerWins + gameLog.playerWins;
+                          dealerWins = logSoFar.dealerWins + gameLog.dealerWins;
+                          draws = logSoFar.draws + gameLog.draws}
+
+        // Take the result of that and combine it with the logSoFar, by summing
+        // the playerWins, dealerWins, and draws from the result and from the logSoFar.
+        let finalLog = 
+          match n with
+          | 1 -> currentLog
+          | i -> manyGamesTail (i - 1) playerStrategy currentLog
         // If this is the last game (n = 1), then the combined log is the answer.
         // Otherwise, the combined log becomes the new logSoFar in a recursive call to manyGamesTail,
         // with n reduced by 1.
 
         // TODO: this is a "blank" GameLog. Return something more appropriate.
-        {playerWins = 0; dealerWins = 0; draws = 0}
+        //{playerWins = 0; dealerWins = 0; draws = 0}
+        finalLog
 
     // Start the tail recursion with a blank logSoFar.
     manyGamesTail n playerStrategy {playerWins = 0; dealerWins = 0; draws = 0}
-            
 
-// PLAYER STRATEGIES
-let interactivePlayerStrategy gameState =
-    printfn "Hit? y/n"
-    let answer = System.Console.ReadLine()
-    // Return true if they entered "y", false otherwise.
-    answer = "y"
+
 
 [<EntryPoint>]
 let main argv =
