@@ -182,9 +182,6 @@ let rec dealerTurn gameState =
 
 // Take the player's turn by repeatedly taking a single action until they bust or stay.
 let rec playerTurn (playerStrategy : GameState->bool) (gameState : GameState) =
-    // TODO: code this method using dealerTurn as a guide. Follow the same standard
-    // of printing output. This function must return the new game state after the player's
-    // turn has finished, like dealerTurn.
     let player = gameState.playerHand
     let score = handTotal player
 
@@ -266,7 +263,7 @@ let coinFlipPlayerStrategy gameState =
 // Plays one game with the given player strategy.
 // Returns a GameLog recording the winner of the game.
 let oneGame playerStrategy gameState =
-    // TODO: print the first card in the dealer's hand to the screen, because the Player can see
+    // Print the first card in the dealer's hand to the screen
     let dealer = gameState.dealerHand
     let player = gameState.playerHand
 
@@ -274,8 +271,7 @@ let oneGame playerStrategy gameState =
     |> cardToString
     |> printfn "\nDealer is showing: %A"
 
-    // TODO: play the game! First the player gets their turn. The dealer then takes their turn,
-    // using the state of the game after the player's turn finished.
+    // Play the game
     let currentState = playerTurn playerStrategy gameState
     let finalState = dealerTurn currentState
 
@@ -283,12 +279,8 @@ let oneGame playerStrategy gameState =
     let dealerScore = handTotal finalState.dealerHand
 
     
-    // TODO: determine the winner! Get the hand scores for the dealer and the player.
-    // The player wins if they did not bust (score <= 21) AND EITHER:
-    //                                                        - the dealer busts; or
-    //                                                        - player's score > dealer's score
-    // If neither side busts and they have the same score, the result is a "draw".
-    // Return a GameLog object with a value of 1 for the correct winner.
+    // Determine the winner
+    // Get the hand scores for the dealer and the player.
     let mutable playerWins = 0
     let mutable dealerWins = 0
     let mutable draws = 0
@@ -305,16 +297,15 @@ let oneGame playerStrategy gameState =
     elif playerScore > 21 then
       dealerWins <- 1
 
-    // TODO: this is a "blank" GameLog. Return something more appropriate for each of the outcomes
-    // described above.
+    // Return a GameLog object with a value of 1 for the correct winner
     {playerWins = playerWins; dealerWins = dealerWins; draws = draws}
 
 // Recursively plays n games using the given playerStrategy.
 let manyGames n playerStrategy =
     // This tail-recursive helper implements the manyGames logic.
     let rec manyGamesTail n playerStrategy logSoFar =
-        // TODO: construct a new game using newGame ().
-        // Then play that game using oneGame.
+        // Constructs a new game using newGame ().
+        // Then plays that game using oneGame.
         let startGame = newGame ()
         let gameLog = oneGame cautiousPlayerStrategy startGame
         
@@ -332,8 +323,7 @@ let manyGames n playerStrategy =
         // Otherwise, the combined log becomes the new logSoFar in a recursive call to manyGamesTail,
         // with n reduced by 1.
 
-        // TODO: this is a "blank" GameLog. Return something more appropriate.
-        //{playerWins = 0; dealerWins = 0; draws = 0}
+        // returns combined gamelog
         finalLog
 
     // Start the tail recursion with a blank logSoFar.
