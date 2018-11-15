@@ -340,11 +340,9 @@ let manyGames n playerStrategy =
     manyGamesTail n playerStrategy {playerWins = 0; dealerWins = 0; draws = 0}
 
 
-
 [<EntryPoint>]
 let main argv =
-    
+    let log = manyGames 1000 coinFlipPlayerStrategy
+    printfn "\n\nFinal Log: %A" log
 
-    // manyGames 1000 (fun x -> handTotal x.playerHand < 16)
-    // |> printfn "%A"
     0 // return an integer exit code
