@@ -4,6 +4,9 @@
 
 import java.util.Iterator;
 
+// creates an iterable sequence of integers by keeping a
+// private counter of where the sequence is "currently", and
+// advancing that counter with each call to the iterator
 public class RangeGenerator implements Iterable<Integer> {
     private int mStart, mEnd, mIncrement;
 

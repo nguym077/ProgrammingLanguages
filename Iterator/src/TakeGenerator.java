@@ -4,7 +4,8 @@
 
 import java.util.Iterator;
 
-// generic because we can take values from any type of sequence
+// given a source 'Iterable<T>' and generates an iterable
+// sequence of the first 'n' elements
 public class TakeGenerator<T> implements Iterable<T> {
     private Iterable<T> mSource;        // sequence to take values from
     private int mAmount;                // number of values to take
