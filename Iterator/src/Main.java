@@ -7,10 +7,16 @@ import java.util.function.Predicate;
 
 public class Main {
     public static void main(String[] args) {
-        RangeGenerator g = new RangeGenerator(1, 20, 1);
-        Predicate<Integer> lessThan7 = i -> (i < 10);
-        TakeWhileGenerator<Integer> m = new TakeWhileGenerator<>(lessThan7, g);
+        RangeGenerator g = new RangeGenerator(1, 10, 1);
+        Predicate<Integer> lessThan7 = i -> (i % 2 == 1);
+        FilterGenerator<Integer> m = new FilterGenerator<>(lessThan7, g);
 
+        System.out.println("Original Values: ");
+        for (Integer i : g) {
+            System.out.print(i + " ");
+        }
+
+        System.out.println("\n\nTest Output: ");
         for (Integer i : m) {
             System.out.print(i + " ");
         }
